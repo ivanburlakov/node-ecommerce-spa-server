@@ -15,19 +15,16 @@ app.get('/*', function (req, res) {
 
 app.post('/order', express.json(), async (req, res) => {
 	const message = req.body;
+	if (!req.body) return res.sendStatus(400);
 	message.user.phone = decodeURIComponent(message.user.phone);
 	message.user.email = decodeURIComponent(message.user.email);
 	message.order.forEach((element) => {
 		element.delivery = decodeURIComponent(element.delivery);
 	});
-
 	const userID = await functions.getUserID(message.user);
-
-	await functions.addOrders(userID, message.order);
-
-	if (!req.body) return res.sendStatus(400);
-
-	res.json('Order recieved!');
+	const sendOrder = await functions.addOrders(userID, message.order);
+	if (!userID || !sendOrder) res.sendStatus(400);
+	res.sendStatus(200);
 });
 
 app.listen(port);
