@@ -1,0 +1,1 @@
+Run `node`/`nodemon index.js` from console to start.
