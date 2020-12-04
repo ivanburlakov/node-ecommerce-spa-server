@@ -7,10 +7,7 @@ const sequelize = new Sequelize(config.db.database, config.db.username, config.d
 	dialect: config.db.dialect,
 });
 
-const Model = Sequelize.Model;
-class Products extends Model {}
-Products.init(
-	{
+const Products = sequelize.define('Products', {
 		product_ID: {
 			type: Sequelize.INTEGER,
 			allowNull: false,
@@ -30,7 +27,6 @@ Products.init(
 		},
 	},
 	{
-		sequelize: sequelize,
 		tableName: 'products',
 		timestamps: false,
 	}

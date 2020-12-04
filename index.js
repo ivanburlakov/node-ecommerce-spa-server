@@ -9,7 +9,7 @@ const port = process.env.PORT || 8080;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/*', function (req, res) {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -23,8 +23,8 @@ app.post('/order', express.json(), async (req, res) => {
 	});
 	const userID = await functions.getUserID(message.user);
 	const sendOrder = await functions.addOrders(userID, message.order);
-	if (!userID || !sendOrder) res.sendStatus(400);
-	res.sendStatus(200);
+	if (!userID || !sendOrder) return res.sendStatus(400);
+	return res.sendStatus(200);
 });
 
 app.listen(port);
