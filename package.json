@@ -1,12 +1,12 @@
 {
   "name": "ecommerce-server",
-  "version": "0.2.1",
-  "main": "index.js",
+  "version": "0.2.2",
+  "main": "server.js",
   "author": "Ivan Burlakov <burlakovv.ivan@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js",
-    "debug": "nodemon index.js",
+    "start": "node ./src/server.js",
+    "debug": "nodemon ./src/server.js",
     "lint": "eslint \"**/*.js\"",
     "pretify": "prettier --write \"**/*.js\""
   },
