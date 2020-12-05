@@ -5,7 +5,10 @@
   "author": "Ivan Burlakov <burlakovv.ivan@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"**/*.js\" --ignore-pattern public/"
+    "start": "node index.js",
+    "debug": "nodemon index.js",
+    "lint": "eslint \"**/*.js\"",
+    "pretify": "prettier --write \"**/*.js\""
   },
   "dependencies": {
     "dotenv": "^8.2.0",
