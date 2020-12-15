@@ -6,7 +6,7 @@ require('dotenv').config({
   path: fs.existsSync('.env.production') ? '.env.production' : '.env',
 });
 
-const functions = require('./modules/functions.js');
+const functions = require('./src/modules/functions.js');
 
 const app = express();
 const port = process.env.PORT || 8080;
