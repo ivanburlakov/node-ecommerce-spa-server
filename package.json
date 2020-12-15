@@ -5,8 +5,8 @@
   "author": "Ivan Burlakov <burlakovv.ivan@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node ./src/server.js",
-    "debug": "nodemon ./src/server.js",
+    "start": "node ./server.js",
+    "debug": "nodemon ./server.js",
     "lint": "eslint \"**/*.js\"",
     "pretify": "prettier --write \"**/*.js\""
   },

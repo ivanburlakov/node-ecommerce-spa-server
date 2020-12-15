@@ -23,27 +23,15 @@ async function getUserID(userData) {
 
 async function addOrders(uid, order) {
   try {
-    const lastOrderID = await Orders.findOne({
-      limit: 1,
-      order: [['id', 'DESC']],
-    });
-
-    const newOrderID = (() => {
-      if (lastOrderID) return lastOrderID.order_ID + 1;
-      return 1;
-    })();
+    let { product_ID, quantity, delivery_address } = order.pop();
+    const firstQuery = { user_ID: uid, product_ID, quantity, delivery_address };
+    const firstOrder = await Orders.create(firstQuery);
 
     const orderArray = [];
 
     order.forEach((element) => {
-      const obj = {
-        order_ID: newOrderID,
-        user_ID: uid,
-        product_ID: element.product_ID,
-        quantity: element.quantity,
-        delivery_address: element.delivery,
-      };
-
+      ({ product_ID, quantity, delivery_address } = element);
+      const obj = { order_ID: firstOrder.ID, user_ID: uid, product_ID, quantity, delivery_address };
       orderArray.push(obj);
     });
 
