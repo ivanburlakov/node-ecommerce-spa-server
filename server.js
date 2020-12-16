@@ -1,34 +1,60 @@
-const path = require('path');
-const express = require('express');
 const fs = require('fs');
+const http = require('http');
+const path = require('path');
 
-require('dotenv').config({
-  path: fs.existsSync('.env.production') ? '.env.production' : '.env',
-});
+const { postOrder, updateJson } = require('./src/modules/functions.js');
 
-const functions = require('./src/modules/functions.js');
+const STATIC_PATH = path.join(process.cwd(), './public');
 
-const app = express();
-const port = process.env.PORT || 8080;
+const POST_TYPES = {
+  '/api/order': postOrder,
+  '/api/update_json': updateJson,
+};
 
-app.use(express.static(path.join(__dirname, 'public')));
+const MIME_TYPES = {
+  html: 'text/html; charset=UTF-8',
+  js: 'application/javascript; charset=UTF-8',
+  css: 'text/css',
+  json: 'application/json',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  ico: 'image/x-icon',
+  svg: 'image/svg+xml',
+};
 
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+const serveFile = name => {
+  const filePath = path.join(STATIC_PATH, name);
+  if (!filePath.startsWith(STATIC_PATH)) {
+    console.log(`Can't be served: ${name}`);
+    return null;
+  }
+  const stream = fs.createReadStream(filePath);
+  console.log(`Served: ${name}`);
+  return stream;
+};
 
-app.post('/order', express.json(), async (req, res) => {
-  const message = req.body;
-  if (!req.body) return res.sendStatus(400);
-  message.user.phone = decodeURIComponent(message.user.phone);
-  message.user.email = decodeURIComponent(message.user.email);
-  message.order.forEach((element) => {
-    element.delivery = decodeURIComponent(element.delivery);
-  });
-  const userID = await functions.getUserID(message.user);
-  const sendOrder = await functions.addOrders(userID, message.order);
-  if (!userID || !sendOrder) return res.sendStatus(400);
-  return res.sendStatus(200);
-});
-
-app.listen(port);
+http
+  .createServer(async (req, res) => {
+    const { url } = req;
+    if (req.method === 'GET') {
+      const fileExt = path.extname(url).substring(1);
+      const mimeType = MIME_TYPES[fileExt] || MIME_TYPES.html;
+      res.writeHead(200, { 'Content-Type': mimeType });
+      const stream = fileExt === '' ? serveFile('/index.html') : serveFile(url);
+      if (stream) stream.pipe(res);
+    } else if (req.method === 'POST') {
+      const postType = POST_TYPES[url];
+      if (postType) {
+        const response = await postType(req, res);
+        if (response) {
+          res.end(`Did stuff succesfully`);
+        } else {
+          res.end(`Woops, your response failed to arrive!`);
+        }
+      } else {
+        res.end(`Woops, no such post type!`);
+      }
+    }
+  })
+  .listen(3000);
