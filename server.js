@@ -2,14 +2,9 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
-const { postOrder, updateJson } = require('./src/modules/functions.js');
+const postTypes = require('./src/modules/functions.js');
 
 const STATIC_PATH = path.join(process.cwd(), './public');
-
-const POST_TYPES = {
-  '/api/order': postOrder,
-  '/api/update_json': updateJson,
-};
 
 const MIME_TYPES = {
   html: 'text/html; charset=UTF-8',
@@ -44,11 +39,11 @@ http
       const stream = fileExt === '' ? serveFile('/index.html') : serveFile(url);
       if (stream) stream.pipe(res);
     } else if (req.method === 'POST') {
-      const postType = POST_TYPES[url];
+      const postType = postTypes[url];
       if (postType) {
         const response = await postType(req, res);
         if (response) {
-          res.end(`Did stuff succesfully`);
+          res.end(response);
         } else {
           res.end(`Woops, your response failed to arrive!`);
         }

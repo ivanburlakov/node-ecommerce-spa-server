@@ -89,7 +89,9 @@ async function updateJson() {
     });
 }
 
-module.exports = {
-  updateJson,
-  postOrder,
+const postTypes = {
+  '/api/order': postOrder,
+  '/api/update_json': updateJson,
 };
+
+module.exports = postTypes;
