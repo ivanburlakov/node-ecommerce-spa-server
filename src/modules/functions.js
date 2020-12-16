@@ -21,24 +21,42 @@ async function getUserID(userData) {
   }
 }
 
-async function addOrders(uid, order) {
+async function addOrders(user_ID, orders) {
   try {
-    let { product_ID, quantity, delivery_address } = order.pop();
-    const firstQuery = { user_ID: uid, product_ID, quantity, delivery_address };
+    let { product_ID, quantity, delivery_address } = orders.pop();
+    const firstQuery = { user_ID, product_ID, quantity, delivery_address };
     const firstOrder = await Orders.create(firstQuery);
-
+    const { order_ID } = firstOrder;
     const orderArray = [];
-
-    order.forEach((element) => {
+    orders.forEach(element => {
       ({ product_ID, quantity, delivery_address } = element);
-      const obj = { order_ID: firstOrder.ID, user_ID: uid, product_ID, quantity, delivery_address };
-      orderArray.push(obj);
+      const order = {
+        order_ID,
+        user_ID,
+        product_ID,
+        quantity,
+        delivery_address,
+      };
+      orderArray.push(order);
     });
-
     await Orders.bulkCreate(orderArray);
   } catch (err) {
     console.error('Unable to add order: ', err);
   }
+}
+
+async function postOrder(req, res) {
+  const message = req.body;
+  if (!req.body) return res.sendStatus(400);
+  message.user.phone = decodeURIComponent(message.user.phone);
+  message.user.email = decodeURIComponent(message.user.email);
+  message.order.forEach(element => {
+    element.delivery = decodeURIComponent(element.delivery);
+  });
+  const userID = await getUserID(message.user);
+  const sendOrder = await addOrders(userID, message.order);
+  if (!userID || !sendOrder) return res.sendStatus(400);
+  return res.sendStatus(200);
 }
 
 async function updateJson() {
@@ -50,29 +68,28 @@ async function updateJson() {
       },
     ],
   })
-    .then((products) => {
+    .then(products => {
       return new Promise((resolve, reject) => {
         fs.writeFile(
           './public/data/products.json',
           JSON.stringify(products, null, 4),
           'utf8',
-          (err) => {
+          err => {
             if (err) reject(err);
             else resolve('"products.json" successfully written.');
           }
         );
       });
     })
-    .then((result) => {
+    .then(result => {
       console.log(result);
     })
-    .catch((err) => {
+    .catch(err => {
       console.error('Unable to connect to the database:', err);
     });
 }
 
 module.exports = {
-  getUserID,
-  addOrders,
   updateJson,
+  postOrder,
 };
