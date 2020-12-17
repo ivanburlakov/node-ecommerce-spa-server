@@ -46,27 +46,25 @@ async function addOrders(user_ID, orders) {
 }
 
 async function postOrder(req, res) {
-  const message = req.body;
+  const { user, order } = req.body.message;
   if (!req.body) return res.sendStatus(400);
-  message.user.phone = decodeURIComponent(message.user.phone);
-  message.user.email = decodeURIComponent(message.user.email);
-  message.order.forEach(element => {
-    element.delivery = decodeURIComponent(element.delivery);
+  user.phone = decodeURIComponent(user.phone);
+  user.email = decodeURIComponent(user.email);
+  const modifiedOrder = [];
+  order.forEach(el => {
+    const element = el;
+    element.delivery = decodeURIComponent(el.delivery);
+    modifiedOrder.push(element);
   });
-  const userID = await getUserID(message.user);
-  const sendOrder = await addOrders(userID, message.order);
-  if (!userID || !sendOrder) return res.sendStatus(400);
-  return res.sendStatus(200);
+  const userID = await getUserID(user);
+  const sendOrder = await addOrders(userID, modifiedOrder);
+  if (!userID || !sendOrder) return 0;
+  return 1;
 }
 
 async function updateJson() {
   Products.findAll({
-    include: [
-      {
-        model: Photos,
-        attributes: ['path'],
-      },
-    ],
+    include: [{ model: Photos, attributes: ['path'] }],
   })
     .then(products => {
       return new Promise((resolve, reject) => {

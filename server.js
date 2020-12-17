@@ -40,16 +40,10 @@ http
       if (stream) stream.pipe(res);
     } else if (req.method === 'POST') {
       const postType = postTypes[url];
-      if (postType) {
-        const response = await postType(req, res);
-        if (response) {
-          res.end(response);
-        } else {
-          res.end(`Woops, your response failed to arrive!`);
-        }
-      } else {
-        res.end(`Woops, no such post type!`);
-      }
+      let response = postType ? await postType(req, res) : `Woops, no ${url} post type!`;
+      res.writeHead(response ? 200 : 500, { 'Content-Type': 'text/plain' });
+      response ||= `Woops, your response failed to arrive!`;
+      res.end(response);
     }
   })
   .listen(3000);
