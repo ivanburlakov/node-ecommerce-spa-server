@@ -2,6 +2,10 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
+require('dotenv').config({
+  path: fs.existsSync('.env.production') ? '.env.production' : '.env',
+});
+
 const postTypes = require('./src/modules/functions.js');
 
 const STATIC_PATH = path.join(process.cwd(), './public');
