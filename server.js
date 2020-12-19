@@ -50,11 +50,12 @@ http
       let mimeType = LIGHT_MIME_TYPES[fileExt] || HEAVY_MIME_TYPES[fileExt];
       if (!mimeType) mimeType = LIGHT_MIME_TYPES.html;
       res.writeHead(200, { 'Content-Type': mimeType });
-      const data = fileExt === '' ? cache.get('/index.html') : cache.get(url);
-      if (data) {
-        res.end(data);
+      const file = fileExt === '' ? '/index.html' : url;
+      const cached = cache.get(file)
+      if (cached) {
+        res.end(cached);
       } else {
-        const stream = fileExt === '' ? serveFile('/index.html') : serveFile(url);
+        const stream = serveFile(file);
         if (stream) stream.pipe(res);
       }
     } else if (req.method === 'POST') {
