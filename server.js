@@ -1,7 +1,6 @@
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
-
 require('dotenv').config({
   path: fs.existsSync('.env.production') ? '.env.production' : '.env',
 });
@@ -46,7 +45,7 @@ http
       const postType = postTypes[url];
       let response = postType ? await postType(req, res) : `Woops, no ${url} post type!`;
       res.writeHead(response ? 200 : 500, { 'Content-Type': 'text/plain' });
-      response ||= `Woops, your response failed to arrive!`;
+      if (!response) response = `Woops, your response failed to arrive!`;
       res.end(response);
     }
   })
