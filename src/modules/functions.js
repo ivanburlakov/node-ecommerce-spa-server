@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { Pool } = require('pg');
 
-const { host, port, database, user, password } = require('./src/config/config.js').db;
+const { host, port, database, user, password } = require('../config/config.js').db;
 
 const pool = new Pool({
   host,
