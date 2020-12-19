@@ -32,12 +32,12 @@ const cacheFile = async filePath => {
 
 const cacheDirectory = async directoryPath => {
   const files = await fs.promises.readdir(directoryPath, { withFileTypes: true });
-  files.forEach(file => {
+  for (const file of files) {
     const filePath = path.join(directoryPath, file.name);
     const fileExt = path.extname(filePath).substring(1);
     if (file.isDirectory()) cacheDirectory(filePath);
     else if (LIGHT_MIME_TYPES[fileExt]) cacheFile(filePath);
-  });
+  };
 };
 
 cacheDirectory(STATIC_PATH);
