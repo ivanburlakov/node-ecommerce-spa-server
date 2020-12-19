@@ -1,12 +1,22 @@
 const fs = require('fs');
+const { Pool } = require('pg');
 
-const Photos = require('../models/photos.js');
-const Products = require('../models/products.js');
-const Users = require('../models/users.js');
-const Orders = require('../models/orders.js');
+const { host, port, database, user, password } = require('./src/config/config.js').db;
 
-Products.hasOne(Photos, { foreignKey: 'product_ID' });
+const pool = new Pool({
+  host,
+  port,
+  database,
+  user,
+  password,
+});
 
+const queries = {
+  'placeOrder': '',
+  'updateJson': 'SELECT * FROM "ecommerce"."posts"',
+}
+
+// TODO: unsequelize
 async function getUserID(userData) {
   try {
     const { email, phone } = userData;
