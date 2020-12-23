@@ -12,8 +12,12 @@ const pool = new Pool({
 });
 
 const queries = {
-  'placeOrder': '',
-  'updateJson': 'SELECT * FROM "ecommerce"."posts"',
+  placeOrder: '',
+  updateJson: 'SELECT * FROM "ecommerce"."posts"',
+};
+
+function jsonResult(result) {
+  return JSON.stringify({ result });
 }
 
 // TODO: unsequelize
@@ -73,33 +77,27 @@ async function postOrder(req, res) {
 }
 
 async function updateJson() {
-  Products.findAll({
-    include: [{ model: Photos, attributes: ['path'] }],
-  })
-    .then(products => {
-      return new Promise((resolve, reject) => {
-        fs.writeFile(
-          './public/data/products.json',
-          JSON.stringify(products, null, 4),
-          'utf8',
-          err => {
-            if (err) reject(err);
-            else resolve('"products.json" successfully written.');
-          }
-        );
-      });
-    })
-    .then(result => {
-      console.log(result);
-    })
-    .catch(err => {
-      console.error('Unable to connect to the database:', err);
+  try {
+    const client = await pool.connect();
+    const products = await client.query(queries.updateJson);
+    client.release();
+    const { rows } = products;
+    await fs.promises.writeFile(
+      './public/static/data/products.json',
+      JSON.stringify(rows, null, 2),
+      'utf8'
+    );
+    return JSON.stringify({
+      result: 'All succefull!',
     });
+  } catch (err) {
+    console.error('Unable to connect to the database:', err);
+  }
 }
 
 const postTypes = {
-  '/api/order': postOrder,
+  // '/api/order': postOrder,
   '/api/update_json': updateJson,
 };
 
-module.exports = postTypes;
+module.exports = { postTypes, jsonResult };
