@@ -1,3 +1,9 @@
+const {
+  rateLimiterWindow,
+  requestsPerWindow,
+  userRequestsPerWindow,
+} = require('../config/config.js').server;
+
 const users = new Map();
 let frameStart = Date.now();
 let requestsCounter = 0;
@@ -7,20 +13,23 @@ async function rateLimiter(req) {
   const { host } = headers;
   const user = headers['user-agent'];
   const device = host.concat(user);
-  const requests = users.get(device);
-  if (Date.now() - frameStart > 1000) {
+  const userRequests = users.get(device);
+  if (Date.now() - frameStart > rateLimiterWindow) {
     users.clear();
     frameStart = Date.now();
     requestsCounter = 0;
   }
-  if (requestsCounter > 10000 || requests > 100) {
+  if (
+    requestsCounter > requestsPerWindow ||
+    userRequests > userRequestsPerWindow
+  ) {
     return false;
   }
   requestsCounter += 1;
-  if (!requests) {
+  if (!userRequests) {
     users.set(device, 1);
   } else {
-    users.set(device, requests + 1);
+    users.set(device, userRequests + 1);
   }
   return true;
 }

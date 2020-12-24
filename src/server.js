@@ -29,12 +29,17 @@ const cache = new Map();
 const cacheFile = async filePath => {
   const data = await fs.promises.readFile(filePath, 'utf8');
   // .split and .join are only for hosting on Windows
-  const key = filePath.substring(STATIC_PATH_LENGTH).split(path.sep).join(path.posix.sep);
+  const key = filePath
+    .substring(STATIC_PATH_LENGTH)
+    .split(path.sep)
+    .join(path.posix.sep);
   cache.set(key, data);
 };
 
 const cacheDirectory = async directoryPath => {
-  const files = await fs.promises.readdir(directoryPath, { withFileTypes: true });
+  const files = await fs.promises.readdir(directoryPath, {
+    withFileTypes: true,
+  });
   for (const file of files) {
     const filePath = path.join(directoryPath, file.name);
     const fileExt = path.extname(filePath).substring(1);
@@ -62,9 +67,14 @@ async function getHandler(res, url) {
 
 async function postHandler(req, res, url) {
   const postType = postTypes[url];
-  let response = postType ? await postType(req) : jsonResult(`Woops, no ${url} post type!`);
-  res.writeHead(response ? 200 : 500, { 'Content-Type': LIGHT_MIME_TYPES.json });
-  if (!response) response = jsonResult(`Woops, your response failed to arrive!`);
+  let response = postType
+    ? await postType(req)
+    : jsonResult(`Woops, no ${url} post type!`);
+  res.writeHead(response ? 200 : 500, {
+    'Content-Type': LIGHT_MIME_TYPES.json,
+  });
+  if (!response)
+    response = jsonResult(`Woops, your response failed to arrive!`);
   res.end(response);
 }
 
