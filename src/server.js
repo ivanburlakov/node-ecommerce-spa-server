@@ -6,8 +6,9 @@ require('dotenv').config({
   path: fs.existsSync('../.env.production') ? '../.env.production' : '../.env',
 });
 
-const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./modules/constants.js');
-const { postTypes, jsonResult } = require('./modules/functions.js');
+const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./modules/constants');
+const { postTypes, jsonResult } = require('./modules/functions');
+const { rateLimiter } = require('./modules/rateLimiter');
 
 const STATIC_PATH = path.join(process.cwd(), './public');
 const STATIC_PATH_LENGTH = STATIC_PATH.length;
@@ -15,11 +16,11 @@ const STATIC_PATH_LENGTH = STATIC_PATH.length;
 const serveFile = name => {
   const filePath = path.join(STATIC_PATH, name);
   if (!filePath.startsWith(STATIC_PATH)) {
-    console.log(`Can't be served: ${name}`);
+    // TODO: add logging
     return null;
   }
   const stream = fs.createReadStream(filePath);
-  console.log(`Served: ${name}`);
+  // TODO: add logging
   return stream;
 };
 
@@ -44,28 +45,47 @@ const cacheDirectory = async directoryPath => {
 
 cacheDirectory(STATIC_PATH);
 
+async function getHandler(res, url) {
+  const fileExt = path.extname(url).substring(1);
+  let mimeType = LIGHT_MIME_TYPES[fileExt] || HEAVY_MIME_TYPES[fileExt];
+  if (!mimeType) mimeType = LIGHT_MIME_TYPES.html;
+  res.writeHead(200, { 'Content-Type': mimeType });
+  const file = fileExt === '' ? '/index.html' : url;
+  const cached = cache.get(file);
+  if (cached) {
+    res.end(cached);
+  } else {
+    const stream = serveFile(file);
+    if (stream) stream.pipe(res);
+  }
+}
+
+async function postHandler(req, res, url) {
+  const postType = postTypes[url];
+  let response = postType ? await postType(req) : jsonResult(`Woops, no ${url} post type!`);
+  res.writeHead(response ? 200 : 500, { 'Content-Type': LIGHT_MIME_TYPES.json });
+  if (!response) response = jsonResult(`Woops, your response failed to arrive!`);
+  res.end(response);
+}
+
+async function requestHandler(req, res) {
+  const { url } = req;
+  if (req.method === 'GET') {
+    getHandler(res, url);
+  } else if (req.method === 'POST') {
+    postHandler(req, res, url);
+  }
+}
+
 http
   .createServer(async (req, res) => {
-    const { url } = req;
-    if (req.method === 'GET') {
-      const fileExt = path.extname(url).substring(1);
-      let mimeType = LIGHT_MIME_TYPES[fileExt] || HEAVY_MIME_TYPES[fileExt];
-      if (!mimeType) mimeType = LIGHT_MIME_TYPES.html;
-      res.writeHead(200, { 'Content-Type': mimeType });
-      const file = fileExt === '' ? '/index.html' : url;
-      const cached = cache.get(file);
-      if (cached) {
-        res.end(cached);
-      } else {
-        const stream = serveFile(file);
-        if (stream) stream.pipe(res);
-      }
-    } else if (req.method === 'POST') {
-      const postType = postTypes[url];
-      let response = postType ? await postType(req) : jsonResult(`Woops, no ${url} post type!`);
-      res.writeHead(response ? 200 : 500, { 'Content-Type': LIGHT_MIME_TYPES.json });
-      if (!response) response = jsonResult(`Woops, your response failed to arrive!`);
+    const available = await rateLimiter(req);
+    if (!available) {
+      res.writeHead(500, { 'Content-Type': LIGHT_MIME_TYPES.json });
+      const response = jsonResult(`Server is overloaded!`);
       res.end(response);
+    } else {
+      requestHandler(req, res);
     }
   })
-  .listen(8000);
+  .listen(3000);

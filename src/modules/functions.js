@@ -84,13 +84,11 @@ async function updateJson() {
     client.release();
     const { rows } = products;
     await fs.promises.writeFile(
-      './public/static/data/products.json',
+      'public/static/data/products.json',
       JSON.stringify(rows, null, 2),
       'utf8'
     );
-    return JSON.stringify({
-      result: 'All succefull!',
-    });
+    return jsonResult('All succefull!');
   } catch (err) {
     console.error('Unable to connect to the database:', err);
   }
