@@ -2,6 +2,7 @@ const fs = require('fs');
 const { Pool } = require('pg');
 
 const { host, port, database, user, password } = require('../config/config.js').db;
+const { jsonResponse } = require('../modules/jsonResponse');
 
 const pool = new Pool({
   host,
@@ -12,13 +13,9 @@ const pool = new Pool({
 });
 
 const queries = {
-  placeOrder: '',
+  // placeOrder: '',
   updateJson: 'SELECT * FROM "ecommerce"."posts"',
 };
-
-function jsonResult(result) {
-  return JSON.stringify({ result });
-}
 
 // TODO: unsequelize
 
@@ -88,7 +85,7 @@ async function updateJson() {
       JSON.stringify(rows, null, 2),
       'utf8'
     );
-    return jsonResult('All succefull!');
+    return jsonResponse('All succefull!');
   } catch (err) {
     console.error('Unable to connect to the database:', err);
   }
@@ -99,4 +96,4 @@ const postTypes = {
   '/api/update_json': updateJson,
 };
 
-module.exports = { postTypes, jsonResult };
+module.exports = { postTypes };

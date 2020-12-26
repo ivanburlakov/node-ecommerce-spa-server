@@ -1,13 +1,8 @@
 const path = require('path');
 
-const {
-  window,
-  globalRequests,
-  userRequests,
-} = require('../config/config.js').limiter;
-
 const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./constants');
-const { postTypes, jsonResult } = require('./functions');
+const { jsonResponse } = require('./utils');
+const { postTypes } = require('../services/functions');
 const { serveFile } = require('./serveFile');
 const { rateLimiter } = require('./rateLimiter');
 
@@ -25,12 +20,12 @@ async function postHandler(req, res) {
   const postType = postTypes[url];
   let response = postType
     ? await postType(req)
-    : jsonResult(`Woops, no ${url} post type!`);
+    : jsonResponse(`Woops, no ${url} post type!`);
   res.writeHead(response ? 200 : 500, {
     'Content-Type': LIGHT_MIME_TYPES.json,
   });
   if (!response)
-    response = jsonResult(`Woops, your response failed to arrive!`);
+    response = jsonResponse(`Woops, your response failed to arrive!`);
   res.end(response);
 }
 
@@ -38,7 +33,7 @@ async function requestHandler(req, res) {
   if (req.method === 'GET') {
     getHandler(req, res);
   } else if (req.method === 'POST') {
-    rateLimiter(req, res, postHandler, window, globalRequests, userRequests);
+    rateLimiter(req, res, postHandler, 10000, 1000, 100);
   }
 }
 
