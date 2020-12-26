@@ -1,5 +1,11 @@
 const path = require('path');
 
+const {
+  window,
+  globalRequests,
+  userRequests,
+} = require('../config/config.js').limiter;
+
 const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./constants');
 const { postTypes, jsonResult } = require('./functions');
 const { serveFile } = require('./serveFile');
@@ -32,7 +38,7 @@ async function requestHandler(req, res) {
   if (req.method === 'GET') {
     getHandler(req, res);
   } else if (req.method === 'POST') {
-    rateLimiter(req, res, postHandler);
+    rateLimiter(req, res, postHandler, window, globalRequests, userRequests);
   }
 }
 

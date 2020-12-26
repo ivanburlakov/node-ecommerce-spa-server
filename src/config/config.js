@@ -1,8 +1,8 @@
 module.exports = {
-  server: {
-    rateLimiterWindow: 1000,
-    requestsPerWindow: 10000,
-    userRequestsPerWindow: 500,
+  limiter: {
+    window: 1000,
+    requests: 10000,
+    uniqueRequests: 500,
   },
   db: {
     host: '127.0.0.1',
