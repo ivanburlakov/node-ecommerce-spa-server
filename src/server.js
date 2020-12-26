@@ -1,7 +1,8 @@
 const fs = require('fs');
 const http = require('http');
+const dotenv = require('dotenv');
 
-require('dotenv').config({
+dotenv.config({
   path: fs.existsSync('../.env.production') ? '../.env.production' : '../.env',
 });
 

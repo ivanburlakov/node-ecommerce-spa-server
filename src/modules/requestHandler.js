@@ -1,4 +1,3 @@
-const fs = require('fs');
 const path = require('path');
 
 const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./constants');

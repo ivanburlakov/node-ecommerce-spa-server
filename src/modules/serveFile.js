@@ -1,9 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const { LIGHT_MIME_TYPES } = require('./constants');
+const { LIGHT_MIME_TYPES, STATIC_PATH } = require('./constants');
 
-const STATIC_PATH = path.join(process.cwd(), './public');
 const STATIC_PATH_LENGTH = STATIC_PATH.length;
 
 const cache = new Map();
