@@ -3,18 +3,20 @@ const path = require('path');
 
 const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./constants');
 const { postTypes, jsonResult } = require('./functions');
-const { serveFile } = require('./serveFile.js');
+const { serveFile } = require('./serveFile');
+const { rateLimiter } = require('./rateLimiter');
 
-async function getHandler(res, url) {
+async function getHandler(req, res) {
+  const { url } = req;
   const fileExt = path.extname(url).substring(1);
   let mimeType = LIGHT_MIME_TYPES[fileExt] || HEAVY_MIME_TYPES[fileExt];
   if (!mimeType) mimeType = LIGHT_MIME_TYPES.html;
-  res.writeHead(200, { 'Content-Type': mimeType });
   const file = fileExt === '' ? '/index.html' : url;
-  serveFile(res, file);
+  serveFile(res, file, mimeType);
 }
 
-async function postHandler(req, res, url) {
+async function postHandler(req, res) {
+  const { url } = req;
   const postType = postTypes[url];
   let response = postType
     ? await postType(req)
@@ -28,11 +30,10 @@ async function postHandler(req, res, url) {
 }
 
 async function requestHandler(req, res) {
-  const { url } = req;
   if (req.method === 'GET') {
-    getHandler(res, url);
+    getHandler(req, res);
   } else if (req.method === 'POST') {
-    postHandler(req, res, url);
+    rateLimiter(req, res, postHandler);
   }
 }
 

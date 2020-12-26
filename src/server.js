@@ -5,11 +5,10 @@ require('dotenv').config({
   path: fs.existsSync('../.env.production') ? '../.env.production' : '../.env',
 });
 
-const { rateLimiter } = require('./modules/rateLimiter');
 const { requestHandler } = require('./modules/requestHandler');
 
 http
   .createServer(async (req, res) => {
-    rateLimiter(req, res, requestHandler);
+    requestHandler(req, res);
   })
   .listen(3000);
