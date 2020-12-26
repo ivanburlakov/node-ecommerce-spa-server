@@ -2,7 +2,7 @@ const fs = require('fs');
 const { Pool } = require('pg');
 
 const { host, port, database, user, password } = require('../config/config.js').db;
-const { jsonResponse } = require('../modules/jsonResponse');
+const { jsonResponse } = require('../modules/utils');
 
 const pool = new Pool({
   host,
