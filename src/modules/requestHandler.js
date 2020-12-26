@@ -33,7 +33,7 @@ async function requestHandler(req, res) {
   if (req.method === 'GET') {
     getHandler(req, res);
   } else if (req.method === 'POST') {
-    rateLimiter(req, res, postHandler, 10000, 1000, 100);
+    rateLimiter(req, res, postHandler, 10000, 1000, 20);
   }
 }
 

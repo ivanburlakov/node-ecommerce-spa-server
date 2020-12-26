@@ -16,7 +16,7 @@ async function rateLimiter(req, res, next, window, requests, uniqueRequests) {
   const deviceRequests = users.get(device);
   if (requestsCounter > requests || deviceRequests > uniqueRequests) {
     res.writeHead(500, { 'Content-Type': 'text/plain' });
-    const response = `Server is overloaded!`;
+    const response = `Too much requests!`;
     res.end(response);
   } else {
     next(req, res);
