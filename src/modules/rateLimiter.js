@@ -12,7 +12,7 @@ const parseIp = req =>
 async function rateLimiter(req, res, next, window, requests, uniqueRequests) {
   const ip = parseIp(req);
   const user = req.headers['user-agent'];
-  const device = ip.concat(user);
+  const device = ip.concat(':', user);
   const deviceRequests = users.get(device);
   if (requestsCounter > requests || deviceRequests > uniqueRequests) {
     res.writeHead(500, { 'Content-Type': 'text/plain' });
