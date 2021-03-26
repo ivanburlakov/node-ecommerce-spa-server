@@ -1,14 +1,13 @@
 const fs = require('fs');
 const http = require('http');
-const dotenv = require('dotenv');
-const { requestHandler } = require('./modules/requestHandler');
-
-dotenv.config({
-  path: fs.existsSync('../.env.production') ? '../.env.production' : '../.env',
+const { ENV, ENV_PRODUCTION } = require('./modules/constants');
+require('dotenv').config({
+  path: fs.existsSync(ENV_PRODUCTION) ? ENV_PRODUCTION : ENV,
 });
+const { requestHandler } = require('./modules/requestHandler');
 
 http
   .createServer(async (req, res) => {
     requestHandler(req, res);
   })
-  .listen(3000);
+  .listen(8000);

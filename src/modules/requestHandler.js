@@ -2,31 +2,35 @@ const path = require('path');
 
 const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./constants');
 const { jsonResponse } = require('./utils');
-const { postTypes } = require('../services/functions');
+const { apis } = require('../services/functions');
 const { serveFile } = require('./serveFile');
 const { rateLimiter } = require('./rateLimiter');
 
 async function getHandler(req, res) {
   const { url } = req;
-  const fileExt = path.extname(url).substring(1);
-  let mimeType = LIGHT_MIME_TYPES[fileExt] || HEAVY_MIME_TYPES[fileExt];
-  if (!mimeType) mimeType = LIGHT_MIME_TYPES.html;
-  const file = fileExt === '' ? '/index.html' : url;
-  serveFile(res, file, mimeType);
+  const api = apis[url];
+  if (api) {
+    api(req, res);
+  } else {
+    const fileExt = path.extname(url).substring(1);
+    let mimeType = LIGHT_MIME_TYPES[fileExt] || HEAVY_MIME_TYPES[fileExt];
+    if (!mimeType) mimeType = LIGHT_MIME_TYPES.html;
+    const file = fileExt === '' ? '/index.html' : url;
+    serveFile(res, file, mimeType);
+  }
 }
 
 async function postHandler(req, res) {
   const { url } = req;
-  const postType = postTypes[url];
-  let response = postType
-    ? await postType(req)
-    : jsonResponse(`Woops, no ${url} post type!`);
-  res.writeHead(response ? 200 : 500, {
-    'Content-Type': LIGHT_MIME_TYPES.json,
-  });
-  if (!response)
-    response = jsonResponse(`Woops, your response failed to arrive!`);
-  res.end(response);
+  const api = apis[url];
+  if (api) {
+    api(req, res);
+  } else {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(`Woops, no "${url}" post type!`);
+  }
 }
 
 async function requestHandler(req, res) {
