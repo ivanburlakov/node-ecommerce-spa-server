@@ -1,7 +1,7 @@
 {
   "name": "node-spa-server",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "src/server.js",
   "author": "Ivan Burlakov <burlakovv.ivan@gmail.com>",
   "license": "MIT",
   "scripts": {
@@ -30,6 +30,7 @@
   "jest": {
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
+      ".github",
       "node_modules",
       ".history",
       "build"
