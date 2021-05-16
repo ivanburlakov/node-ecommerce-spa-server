@@ -1,4 +1,9 @@
 const path = require('path');
+const {
+  window,
+  requests,
+  uniqueRequests,
+} = require('../config/config.js').rateLimiter;
 const { LIGHT_MIME_TYPES, HEAVY_MIME_TYPES } = require('./constants');
 const { apis } = require('../services/functions');
 const { serveFile } = require('./serveFile');
@@ -35,7 +40,7 @@ async function requestHandler(req, res) {
   if (req.method === 'GET') {
     getHandler(req, res);
   } else if (req.method === 'POST') {
-    rateLimiter(req, res, postHandler, 10000, 1000, 20);
+    rateLimiter(req, res, postHandler, window, requests, uniqueRequests);
   }
 }
 

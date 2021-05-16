@@ -5,4 +5,9 @@ module.exports = {
       rejectUnauthorized: false,
     },
   },
+  rateLimiter: {
+    window: 10000,
+    requests: 1000,
+    uniqueRequests: 20,
+  }
 };
