@@ -1,8 +1,6 @@
 const path = require('path');
 
 const STATIC_PATH = path.join(process.cwd(), './build');
-const ENV = path.join(process.cwd(), './.env');
-const ENV_PRODUCTION = path.join(process.cwd(), './.env.production');
 
 const LIGHT_MIME_TYPES = {
   html: 'text/html; charset=UTF-8',
@@ -23,6 +21,4 @@ module.exports = {
   STATIC_PATH,
   LIGHT_MIME_TYPES,
   HEAVY_MIME_TYPES,
-  ENV,
-  ENV_PRODUCTION,
 };

@@ -2,4 +2,6 @@
 /.history
 /public
 /build
+/tests/setup-tests.js
 .env.production
+.env.tests

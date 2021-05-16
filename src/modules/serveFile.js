@@ -8,27 +8,29 @@ const STATIC_PATH_LENGTH = STATIC_PATH.length;
 const cache = new Map();
 
 async function serveFile(res, file, mimeType) {
-  const cached = cache.get(file);
-  if (cached) {
-    res.writeHead(200, { 'Content-Type': mimeType });
-    res.end(cached);
-    return;
-  }
-  const filePath = path.join(STATIC_PATH, file);
-  if (!filePath.startsWith(STATIC_PATH)) {
+  try {
+    const cached = cache.get(file);
+    if (cached) {
+      res.writeHead(200, { 'Content-Type': mimeType });
+      res.end(cached);
+      return;
+    }
+    const filePath = path.join(STATIC_PATH, file);
+    if (!filePath.startsWith(STATIC_PATH)) {
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      const response = `Out of static path!`;
+      res.end(response);
+      return;
+    }
+    const stream = fs.createReadStream(filePath);
+    if (stream) {
+      res.writeHead(200, { 'Content-Type': mimeType });
+      stream.pipe(res);
+    }
+  } catch (err) {
     res.writeHead(500, { 'Content-Type': 'text/plain' });
-    const response = `Out of static path!`;
-    res.end(response);
-    return;
-  }
-  const stream = fs.createReadStream(filePath);
-  if (stream) {
-    res.writeHead(200, { 'Content-Type': mimeType });
-    stream.pipe(res);
-  } else {
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
-    const response = `No such file!`;
-    res.end(response);
+      const response = `No such file!`;
+      res.end(response);
   }
 }
 

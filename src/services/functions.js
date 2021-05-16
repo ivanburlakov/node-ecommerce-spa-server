@@ -123,14 +123,14 @@ async function login(req, res) {
        WHERE email = '${email}';`
     );
     if (user.rowCount < 1) {
-      jsonResponse(res, 200, {
+      jsonResponse(res, 401, {
         message: 'User with this email\nis not registered.',
       });
     } else {
       const { password_hash } = user.rows[0];
       const passwordsMatch = await verify(password, password_hash);
       if (!passwordsMatch) {
-        jsonResponse(res, 200, {
+        jsonResponse(res, 403, {
           message: 'Password is incorrect.',
         });
       } else {
@@ -158,23 +158,23 @@ async function register(req, res) {
     const hashedPassword = await hash(password);
     client = await pool.connect();
     const user = await client.query(
-      `SELECT email
+      `SELECT email, password_hash
        FROM "users" 
        WHERE email = '${email}';`
     );
-    if (user.rows[0].password_hash) {
-      jsonResponse(res, 200, { message: 'This email\nis already registered.' });
+    if (user.rowCount < 1) {
+      await client.query(
+        `INSERT INTO "users" (email, password_hash)
+         VALUES ('${email}', '${hashedPassword}');`
+      );
+      jsonResponse(res, 200, { message: 'Registered' });
+    } else if (user.rows[0].password_hash) {
+      jsonResponse(res, 409, { message: 'This email\nis already registered.' });
     } else if (user.rows[0].email) {
       await client.query(
         `UPDATE "users"
          SET password_hash = '${hashedPassword}'
          WHERE email = '${email}'`
-      );
-      jsonResponse(res, 200, { message: 'Registered' });
-    } else {
-      await client.query(
-        `INSERT INTO "users" (email, password_hash)
-         VALUES ('${email}', '${hashedPassword}');`
       );
       jsonResponse(res, 200, { message: 'Registered' });
     }
