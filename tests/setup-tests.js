@@ -1,3 +1,5 @@
 const dotenv = require('dotenv');
 
-dotenv.config({ path: '.env.test' });
+if (!process.env.DATABASE_URL) {
+  dotenv.config({ path: '.env.test' });
+}
