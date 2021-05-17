@@ -35,6 +35,6 @@
       ".history",
       "build"
     ],
-    "setupFiles": ["<rootDir>/tests/setup-tests.js"]
+    "setupFiles": ["./tests/setup-tests.js"]
   }
 }
