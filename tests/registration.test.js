@@ -2,6 +2,8 @@ const http = require('http');
 const request = require('supertest');
 const { requestHandler } = require('../src/modules/requestHandler');
 
+console.log(process.env.DATABASE_URL);
+
 describe('Registration test', () => {
   it('should test that registering a user goes successfuly', async () => {
     const result = await request(
