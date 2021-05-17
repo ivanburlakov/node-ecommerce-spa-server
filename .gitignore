@@ -1,6 +1,7 @@
 /node_modules
 /.history
 /public
-/build
+build/*
+!build/.gitkeep 
 .env.production
 .env.test

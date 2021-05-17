@@ -4,6 +4,7 @@ module.exports = {
     ".github",
     "node_modules",
     ".history",
+    "build",
     "public"
   ],
   "setupFiles": ["<rootDir>/tests/setup-tests.js"]
