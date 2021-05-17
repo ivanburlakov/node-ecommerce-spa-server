@@ -7,5 +7,6 @@ module.exports = {
     "build",
     "public"
   ],
+  "setupFiles": ["<rootDir>/tests/setup-tests.js"]
 };
 

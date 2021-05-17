@@ -2,14 +2,14 @@ const http = require('http');
 const request = require('supertest');
 const { requestHandler } = require('../src/modules/requestHandler');
 
-describe('Registration test', () => {
-  it('should test that registering a user goes successfuly', async () => {
+describe('Login test', () => {
+  it('should test that logging in a user goes successfuly', async () => {
     const result = await request(
       http.createServer(async (req, res) => {
         requestHandler(req, res);
       })
     )
-      .post('/api/register')
+      .post('/api/login')
       .send({
         email: 'email@email.com',
         password: '555555',
