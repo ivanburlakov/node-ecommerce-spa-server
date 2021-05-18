@@ -25,9 +25,9 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-      env:
-        DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
-        ACCESS_TOKEN_SECRET: ${{ secrets.TEST_ACCESS_TOKEN_SECRET }}
-        REFRESH_TOKEN_SECRET: ${{ secrets.TEST_REFRESH_TOKEN_SECRET }}
+    - name: create env file
+      run: |
+        touch .env
+        echo DATABASE_URL=${{ secrets.TEST_DATABASE_URL }} >> .env.test
     - run: yarn install
     - run: yarn test
